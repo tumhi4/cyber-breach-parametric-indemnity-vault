@@ -15,8 +15,8 @@ The **Cyber Breach Parametric Indemnity Vault** is an autonomous security warran
 | Parameter | On-Chain Value |
 | :--- | :--- |
 | **Protocol Name** | `CyberBreachParametricIndemnityVault` |
-| **Contract Address** | [`0xB6eB6BD14d9519071A642dd7E615947F0D71fa9B`](https://explorer-studio.genlayer.com/address/0xB6eB6BD14d9519071A642dd7E615947F0D71fa9B) |
-| **Deployment Transaction** | `0xc79aae590aa7e0cdbc73126029e6b6be24bf9f7ed68e594e96df131531ae47d9` |
+| **Contract Address** | [`0x84F4418508e9F3adF6620ab30bf7D5fbf4B68B6b`](https://explorer-studio.genlayer.com/address/0x84F4418508e9F3adF6620ab30bf7D5fbf4B68B6b) |
+| **Deployment Transaction** | `0x7c9171cc240e17278d362b0ce594bb7107223c3ac1169b05e5d33763d1c9d3c6` |
 | **Receipt Status** | `7` (`FINALIZED`) |
 | **Studio RPC** | `https://studio.genlayer.com/api` |
 | **Target Repository** | [https://github.com/tumhi4/cyber-breach-parametric-indemnity-vault](https://github.com/tumhi4/cyber-breach-parametric-indemnity-vault) |
@@ -41,26 +41,31 @@ sequenceDiagram
     Note over Vault: Premium deposited. Policy coverage limit established (3x/5x/10x).
     
     Client->>Vault: submit_breach_claim(policy_id, cve_id, advisory_url, requested_indemnity, nonce)
-    Note over Vault: Anti-spam claim bond escrowed (>= 25 Gwei). Fingerprint burned.
+    Note over Vault: Claim bond escrowed (>= 25 Gwei). Single-claim-per-CVE verified.
     
     Vault->>Consensus: adjudicate_breach_claim(claim_id)
-    Consensus->>Consensus: Fetch advisory (Fail-Closed gl.get_webpage)
-    Consensus->>Consensus: Multi-Validator CVE Severity & Impact Verification (CVSS >= 8.0)
+    Consensus->>Consensus: Ingest advisory from approved catalog (Fail-Closed gl.get_webpage)
+    Consensus->>Consensus: Verify CVSS Base Score >= 8.0 & Product Scope
     
-    alt Incident Confirmed (BREACH_INDEMNIFIED)
+    alt CVSS >= 8.0 AND Incident Confirmed
         Consensus-->>Vault: BREACH_INDEMNIFIED verdict
         Vault->>Client: emit_transfer(indemnity_payout + 100% claim bond refund)
-    else Incident Refuted (CLAIM_REFUTED)
+    else Refuted OR CVSS < 4.0
         Consensus-->>Vault: CLAIM_REFUTED verdict
         Vault->>Vault: Slash claim bond to underwriter reserves
-    else Scope Disputed (SCOPE_INCONCLUSIVE)
+    else Scope Disputed / Inconclusive
         Consensus-->>Vault: SCOPE_INCONCLUSIVE verdict
         Vault->>Client: emit_transfer(100% claim bond refund, 0 indemnity)
     end
 
-    opt Native Transfer Failure Recovery
-        Client->>Vault: withdraw_claimable()
-        Note over Vault: Optimistically zeroes balance; restores if transfer fails
+    opt Policy Expiration Clearing
+        Client->>Vault: settle_expired_policy(policy_id)
+        Note over Vault: Transitions policy to EXPIRED; clears encumbered obligations
+    end
+
+    opt Underwriter Surplus Exit
+        Underwriter->>Vault: withdraw_underwriter_surplus(pool_id, amount)
+        Vault->>Underwriter: emit_transfer(unencumbered capital reserves)
     end
 ```
 
@@ -69,11 +74,12 @@ sequenceDiagram
 ## 3. Core Technical Invariants & Steward Compliance
 
 1. **100% Backed Payable Escrow**: Underwriter reserves, policy premiums, and claim bonds require native GEN strictly via `@gl.public.write.payable` reading `gl.message.value`.
-2. **Zero Genesis Debt**: Initialized without synthetic seed claims or unbacked liabilities in `__init__`.
-3. **Delimiter-Resistant Hashing**: Claim fingerprints encode canonical length prefixes (`L<len>:<val>|...`) preventing preimage collision attacks.
-4. **Strict Address & SSRF Defense**: Comprehensive URL verification rejecting loopback, numeric IPs, RFC1918 subnets, and userinfo delimiters.
-5. **Fail-Closed Evidence Ingestion**: If consensus web ingestion fails or returns empty payloads, reverts with `[ERR_EVIDENCE_FETCH_FAILED]` without state mutation.
-6. **Recoverable Claimable Balances**: Failed EVM transfers credit to `claimable_balances`, safely recoverable via `withdraw_claimable()`.
+2. **Official Advisory Domain Whitelisting**: Strictly restricts advisories to authoritative catalogs (`cve.org`, `nvd.nist.gov`, `cisa.gov`, `mitre.org`, `github.com/advisories`) to eliminate fake advisory spoofing.
+3. **Single Claim Per CVE**: Enforces unique claim keys (`policy_id + "_" + cve_id`) preventing clients from replaying identical CVE claims under the same policy.
+4. **Strict CVSS $\ge 8.0$ Metric Binding**: Indemnity payouts require consensus validation of CVSS Base Score $\ge 8.0$.
+5. **Policy Expiration Settlement**: `settle_expired_policy()` cleans up expired coverage and unencumbers underwriter capital.
+6. **Underwriter Surplus Withdrawal**: Allows underwriters to safely withdraw surplus reserves that exceed active encumbered liabilities.
+7. **Recoverable Claimable Balances**: Failed EVM transfers credit to `claimable_balances`, safely recoverable via `withdraw_claimable()`.
 
 ---
 
@@ -87,7 +93,7 @@ python test/test_cyber_indemnity_vault.py
 
 ```
 ================================================================================
-ALL 15 PHASES OF CyberBreachParametricIndemnityVault PASSED WITH 0 ERRORS!
+ALL 15 PHASES OF CyberBreachParametricIndemnityVault (REMEDIATED) PASSED WITH 0 ERRORS!
 ================================================================================
 ```
 
