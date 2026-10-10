@@ -1,0 +1,20 @@
+{
+  "name": "cyber-breach-parametric-indemnity-vault",
+  "version": "1.0.0",
+  "description": "Parametric Cloud Cybersecurity Warranty & Automated CVE Breach Indemnity Vault on GenLayer",
+  "type": "module",
+  "scripts": {
+    "test": "python test/test_cyber_indemnity_vault.py",
+    "deploy": "node scripts/deploy_cyber_indemnity_vault.mjs"
+  },
+  "keywords": [
+    "genlayer",
+    "intelligent-contracts",
+    "cybersecurity",
+    "parametric-insurance",
+    "cve",
+    "consensus"
+  ],
+  "author": "tumhi4 <tumhi4@users.noreply.github.com>",
+  "license": "MIT"
+}
