@@ -1,12 +1,12 @@
 {
   "contractName": "CyberBreachParametricIndemnityVault",
-  "contractAddress": "0x84F4418508e9F3adF6620ab30bf7D5fbf4B68B6b",
-  "transactionHash": "0x7c9171cc240e17278d362b0ce594bb7107223c3ac1169b05e5d33763d1c9d3c6",
-  "deployerAddress": "0x23d62d03addf4C63DF6FCf010E7d2d4543AbD2DB",
-  "deployedAt": "2026-10-10T22:02:38.456Z",
+  "contractAddress": "0x0465c00e4e9695e668DB23A19a82F8FD9fCdd0A4",
+  "transactionHash": "0x60d92ab43aa9e1679586747135660ad4ab1278895d3d79f0c6155b9f0c9d75cf",
+  "deployerAddress": "0x20cA634F5596d21Eec46bDA256cf6575aE45Ed7B",
+  "deployedAt": "2026-10-11T20:26:13.104Z",
   "network": "GenLayer Studio Testnet",
   "rpcEndpoint": "https://studio.genlayer.com/api",
-  "explorerUrl": "https://explorer-studio.genlayer.com/address/0x84F4418508e9F3adF6620ab30bf7D5fbf4B68B6b",
+  "explorerUrl": "https://explorer-studio.genlayer.com/address/0x0465c00e4e9695e668DB23A19a82F8FD9fCdd0A4",
   "verification": {
     "totalPoolsCreated": 0,
     "totalVolumeLockedWei": "0",

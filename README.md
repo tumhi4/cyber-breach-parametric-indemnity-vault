@@ -15,8 +15,8 @@ The **Cyber Breach Parametric Indemnity Vault** is an autonomous security warran
 | Parameter | On-Chain Value |
 | :--- | :--- |
 | **Protocol Name** | `CyberBreachParametricIndemnityVault` |
-| **Contract Address** | [`0x84F4418508e9F3adF6620ab30bf7D5fbf4B68B6b`](https://explorer-studio.genlayer.com/address/0x84F4418508e9F3adF6620ab30bf7D5fbf4B68B6b) |
-| **Deployment Transaction** | `0x7c9171cc240e17278d362b0ce594bb7107223c3ac1169b05e5d33763d1c9d3c6` |
+| **Contract Address** | [`0x0465c00e4e9695e668DB23A19a82F8FD9fCdd0A4`](https://explorer-studio.genlayer.com/address/0x0465c00e4e9695e668DB23A19a82F8FD9fCdd0A4) |
+| **Deployment Transaction** | `0x60d92ab43aa9e1679586747135660ad4ab1278895d3d79f0c6155b9f0c9d75cf` |
 | **Receipt Status** | `7` (`FINALIZED`) |
 | **Studio RPC** | `https://studio.genlayer.com/api` |
 | **Target Repository** | [https://github.com/tumhi4/cyber-breach-parametric-indemnity-vault](https://github.com/tumhi4/cyber-breach-parametric-indemnity-vault) |
@@ -44,8 +44,8 @@ sequenceDiagram
     Note over Vault: Claim bond escrowed (>= 25 Gwei). Single-claim-per-CVE verified.
     
     Vault->>Consensus: adjudicate_breach_claim(claim_id)
-    Consensus->>Consensus: Ingest advisory from approved catalog (Fail-Closed gl.get_webpage)
-    Consensus->>Consensus: Verify CVSS Base Score >= 8.0 & Product Scope
+    Consensus->>Consensus: Ingest advisory via Equivalence Principle (gl.nondet.web.render)
+    Consensus->>Consensus: Verify CVSS Base Score >= 8.0 & Product Scope (gl.eq_principle.prompt_non_comparative)
     
     alt CVSS >= 8.0 AND Incident Confirmed
         Consensus-->>Vault: BREACH_INDEMNIFIED verdict
@@ -80,6 +80,7 @@ sequenceDiagram
 5. **Policy Expiration Settlement**: `settle_expired_policy()` cleans up expired coverage and unencumbers underwriter capital.
 6. **Underwriter Surplus Withdrawal**: Allows underwriters to safely withdraw surplus reserves that exceed active encumbered liabilities.
 7. **Recoverable Claimable Balances**: Failed EVM transfers credit to `claimable_balances`, safely recoverable via `withdraw_claimable()`.
+8. **Multi-Validator Equivalence Consensus**: Adjudication is wrapped in `gl.eq_principle.prompt_non_comparative` where validators independently refetch the advisory with `gl.nondet.web.render` and enforce bidirectional rejection criteria binding the verdict and CVSS score.
 
 ---
 

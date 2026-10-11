@@ -6,12 +6,42 @@ import urllib.parse
 from datetime import datetime, timezone
 
 
+class MockNondetWeb:
+    def __init__(self, parent):
+        self.parent = parent
+
+    def render(self, url: str, mode: str = "text") -> str:
+        if self.parent.fail_web_fetch:
+            raise RuntimeError("Simulated network timeout connecting to CVE advisory")
+        return self.parent.mock_web_responses.get(
+            url,
+            "<html><body><h1>CISA Known Exploited Vulnerability Advisory: CVE-2026-38291</h1>"
+            "<p>Critical remote code execution vulnerability in Enterprise Gateway EDR v4.x. CVSS Base Score: 9.8. Exploitation confirmed in the wild.</p></body></html>"
+        )
+
+
+class MockNondet:
+    def __init__(self, parent):
+        self.web = MockNondetWeb(parent)
+
+
+class MockEqPrinciple:
+    def __init__(self, parent):
+        self.parent = parent
+
+    def prompt_non_comparative(self, get_input_fn, task: str, criteria: str) -> str:
+        input_data = get_input_fn()
+        return self.parent.exec_prompt(task + "\n" + input_data)
+
+
 class MockGL:
     def __init__(self):
         self.transfers = []
         self.mock_web_responses = {}
         self.fail_web_fetch = False
         self.simulate_transfer_fail = False
+        self.nondet = MockNondet(self)
+        self.eq_principle = MockEqPrinciple(self)
 
     def emit_transfer(self, recipient: str, amount: int):
         if self.simulate_transfer_fail:
@@ -19,13 +49,7 @@ class MockGL:
         self.transfers.append({"recipient": str(recipient).lower(), "amount": int(amount)})
 
     def get_webpage(self, url: str) -> str:
-        if self.fail_web_fetch:
-            raise RuntimeError("Simulated network timeout connecting to CVE advisory")
-        return self.mock_web_responses.get(
-            url,
-            "<html><body><h1>CISA Known Exploited Vulnerability Advisory: CVE-2026-38291</h1>"
-            "<p>Critical remote code execution vulnerability in Enterprise Gateway EDR v4.x. CVSS Base Score: 9.8. Exploitation confirmed in the wild.</p></body></html>"
-        )
+        return self.nondet.web.render(url)
 
     def exec_prompt(self, prompt: str) -> str:
         return json.dumps({
@@ -270,14 +294,18 @@ class MockCyberBreachParametricIndemnityVault:
         pool = self.pools[clm["pool_id"]]
         pol = self.policies[clm["policy_id"]]
 
-        try:
-            adv_text = self.gl.get_webpage(clm["advisory_url"])
-        except Exception:
-            raise AssertionError("[ERR_EVIDENCE_FETCH_FAILED]")
+        def get_input() -> str:
+            try:
+                adv_text = self.gl.nondet.web.render(clm["advisory_url"], mode="text")
+            except Exception:
+                raise AssertionError("[ERR_EVIDENCE_FETCH_FAILED]")
 
-        assert adv_text is not None and len(adv_text.strip()) >= 30, "[ERR_EVIDENCE_FETCH_FAILED]"
+            assert adv_text is not None and len(adv_text.strip()) >= 30, "[ERR_EVIDENCE_FETCH_FAILED]"
+            return f"Vendor & Product: {pool['vendor_product_name']}\nClaimed Incident CVE: {clm['cve_id']}\n<advisory>{adv_text}</advisory>"
 
-        raw_resp = self.gl.exec_prompt("Eval CVE advisory prompt")
+        task = "Eval CVE advisory prompt"
+        criteria = "Validate CVSS >= 8.0 and product match"
+        raw_resp = self.gl.eq_principle.prompt_non_comparative(get_input, task, criteria)
         parsed_verdict = self.CLAIM_INCONCLUSIVE
         rationale = "Fallback"
         cvss = 0.0
