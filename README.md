@@ -4,7 +4,6 @@
 [![GenLayer Intelligent Contracts](https://img.shields.io/badge/GenLayer-Intelligent%20Contract%20v0.2.1-blue.svg)](https://genlayer.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Security Hardened](https://img.shields.io/badge/Steward%20Audited-15--Phase%20Verified-brightgreen.svg)](test/test_cyber_indemnity_vault.py)
-[![Account: tumhi4](https://img.shields.io/badge/GitHub-tumhi4-orange.svg)](https://github.com/tumhi4)
 
 The **Cyber Breach Parametric Indemnity Vault** is an autonomous security warranty primitive that eliminates the multi-year legal battles surrounding enterprise cybersecurity warranties (e.g., EDR/SIEM/Cloud guarantees). By connecting on-chain capital pools directly to decentralized consensus verification of official security advisories (CISA KEV, NVD CVE, vendor post-mortems), breach victims receive deterministic, automated parametric indemnity.
 
@@ -19,7 +18,7 @@ The **Cyber Breach Parametric Indemnity Vault** is an autonomous security warran
 | **Deployment Transaction** | `0x60d92ab43aa9e1679586747135660ad4ab1278895d3d79f0c6155b9f0c9d75cf` |
 | **Receipt Status** | `7` (`FINALIZED`) |
 | **Studio RPC** | `https://studio.genlayer.com/api` |
-| **Target Repository** | [https://github.com/tumhi4/cyber-breach-parametric-indemnity-vault](https://github.com/tumhi4/cyber-breach-parametric-indemnity-vault) |
+| **Repository** | [https://github.com/tumhi4/cyber-breach-parametric-indemnity-vault](https://github.com/tumhi4/cyber-breach-parametric-indemnity-vault) |
 | **Genesis Escrow Obligation** | `0` Wei (100% Backed, Zero Unbacked Genesis Liabilities) |
 
 ---
@@ -102,4 +101,4 @@ ALL 15 PHASES OF CyberBreachParametricIndemnityVault (REMEDIATED) PASSED WITH 0 
 
 ## 5. License
 
-MIT License. Designed and deployed for GenLayer by [tumhi4](https://github.com/tumhi4).
+MIT License. Open-source intelligent contract designed and deployed for GenLayer.
